@@ -1,0 +1,70 @@
+{
+  "basic": {
+    "username": "basic",
+    "password": "pass123",
+    "balance": 1000,
+    "transaction_history": [
+      {
+        "amount": 1000,
+        "type": "deposit",
+        "recipient": null,
+        "timestamp": "2025-04-30 16:56:31",
+        "note": ""
+      }
+    ],
+    "tier": "Basic",
+    "last_interest_calculation": "2025-04-30 16:56:31",
+    "APR": 0.01
+  },
+  "silver": {
+    "username": "silver",
+    "password": "pass123",
+    "balance": 3000,
+    "transaction_history": [
+      {
+        "amount": 3000,
+        "type": "deposit",
+        "recipient": null,
+        "timestamp": "2025-04-30 16:56:31",
+        "note": ""
+      }
+    ],
+    "tier": "Silver",
+    "last_interest_calculation": "2025-04-30 16:56:31",
+    "APR": 0.015
+  },
+  "gold": {
+    "username": "gold",
+    "password": "pass123",
+    "balance": 5000,
+    "transaction_history": [
+      {
+        "amount": 5000,
+        "type": "deposit",
+        "recipient": null,
+        "timestamp": "2025-04-30 16:56:31",
+        "note": ""
+      }
+    ],
+    "tier": "Gold",
+    "last_interest_calculation": "2025-04-30 16:56:31",
+    "APR": 0.02
+  },
+  "laxman": {
+    "username": "laxman",
+    "password": "123",
+    "balance": 20000.0,
+    "transaction_history": [
+      {
+        "amount": 20000.0,
+        "type": "deposit",
+        "recipient": null,
+        "timestamp": "2025-04-30 16:59:08",
+        "note": ""
+      }
+    ],
+    "tier": "Gold",
+    "last_interest_calculation": "2025-04-30 16:59:03",
+    "APR": 0.02
+  }
+}

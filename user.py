@@ -1,7 +1,6 @@
 import datetime
 import os
 import csv
-from user_tier import BasicUser, SilverUser, GoldUser
 
 
 class Transaction:
@@ -110,6 +109,9 @@ class User:
     @classmethod
     def from_dict(cls, data):
         """Create User from dictionary"""
+        # Lazy import to avoid circular dependency
+        from user_tier import BasicUser, SilverUser, GoldUser
+        
         user_class = {
             'Basic': BasicUser,
             'Silver': SilverUser,

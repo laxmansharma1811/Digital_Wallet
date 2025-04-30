@@ -1,5 +1,7 @@
 from interest_calculator import InterestCalculator
-from user import BasicUser, SilverUser, GoldUser, User, Transaction
+from user import User, Transaction
+from user_tier import BasicUser, SilverUser, GoldUser
+from kyc_verification import KYCVerification
 import json
 import os
 import datetime
@@ -10,6 +12,7 @@ class DigitalWallet:
     
     def __init__(self):
         self.users = {}
+        self.kyc_verifier = KYCVerification()
         self.interest_calculator = InterestCalculator(self)
         self.load_users()
     
@@ -40,9 +43,15 @@ class DigitalWallet:
     
     def create_sample_users(self):
         """Create sample users if no data file exists"""
-        self.register("basic", "pass123", 1)
-        self.register("silver", "pass123", 2)
-        self.register("gold", "pass123", 3)
+        sample_kyc = {
+            'full_name': 'Sample User',
+            'dob': '1990-01-01',
+            'address': '123 Sample St',
+            'id_number': '123456789'
+        }
+        self.register("basic", "pass123", 1, sample_kyc)
+        self.register("silver", "pass123", 2, sample_kyc)
+        self.register("gold", "pass123", 3, sample_kyc)
         self.deposit("basic", 1000)
         self.deposit("silver", 3000)
         self.deposit("gold", 5000)
@@ -56,9 +65,14 @@ class DigitalWallet:
         self.interest_calculator.stop()
         print("Interest calculation service stopped")
     
-    def register(self, username, password, tier=1):
+    def register(self, username, password, tier=1, kyc_data=None):
         if username in self.users:
             print("Username already exists")
+            return False
+        
+        # Verify KYC information
+        if not kyc_data or not self.kyc_verifier.verify_kyc(username, kyc_data):
+            print("KYC verification failed")
             return False
         
         if tier == 1:
@@ -82,7 +96,8 @@ class DigitalWallet:
         
         user = self.users[username]
         if user.authenticate(username, password):
-            print(f"Welcome back, {username} ({user.tier} tier)!")
+            kyc_status = self.kyc_verifier.get_kyc_status(username)
+            print(f"Welcome back, {username} ({user.tier} tier)! KYC Status: {kyc_status}")
             return user
         else:
             print("Invalid credentials")
@@ -173,10 +188,12 @@ def display_tier_options():
     print("2. Silver - $2 fee, $5000 max transfer, 1.5% APR, $2000 max loan")
     print("3. Gold - No fees, $10000 max transfer, 2% APR, $5000 max loan, Investments")
 
-def display_user_menu(user):
+def display_user_menu(wallet, user):
+    kyc_status = wallet.kyc_verifier.get_kyc_status(user.username)
     print(f"\n=== {user.username}'s Wallet ({user.tier} tier) ===")
     print(f"Current Balance: ${user.balance:.2f}")
     print(f"Interest Rate: {user.APR*100:.2f}% APR")
+    print(f"KYC Status: {kyc_status}")
     
     next_interest = datetime.datetime.strptime(user.last_interest_calculation, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(days=1)
     print(f"Next interest calculation: {next_interest.strftime('%Y-%m-%d %H:%M')}")
@@ -194,7 +211,7 @@ def display_user_menu(user):
 
 def user_session(wallet, user):
     while True:
-        display_user_menu(user)
+        display_user_menu(wallet, user)
         choice = input("Enter your choice: ")
         
         if choice == "1":

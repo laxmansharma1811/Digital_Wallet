@@ -1,10 +1,12 @@
-from user_tier import *
+from Digital_Wallet.user import Transaction
+from user_tier import BasicUser, PremiumUser
+
 
 
 class DigitalWallet:
     """Main system class that manages users and transactions"""
     def __init__(self):
-        self.users = {}  # username: user_object
+        self.users = {}
     
     def register(self, username, password, tier="basic"):
         """Factory method pattern - creates appropriate user tier"""
@@ -46,7 +48,6 @@ class DigitalWallet:
         
         return sender.transfer(amount, recipient)
     
-
 
     def deposit(self, username, amount):
         if username not in self.users:

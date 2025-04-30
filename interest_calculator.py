@@ -1,5 +1,3 @@
-
-
 import datetime
 from threading import Timer
 
