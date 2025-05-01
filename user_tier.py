@@ -220,7 +220,7 @@ class MerchantUser(User):
         super().calculate_daily_interest()
         
         now = datetime.datetime.now()
-        last_fee = datetime.datetime.strptime(self.last_fee_date, "%YB-%Y-%m-%d")
+        last_fee = datetime.datetime.strptime(self.last_fee_date, "%Y-%m-%d")
         if (now - last_fee).days >= 30:  # Check if a month has passed
             if self.balance >= self.MONTHLY_FEE:
                 self.balance -= self.MONTHLY_FEE

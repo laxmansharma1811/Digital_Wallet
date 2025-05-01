@@ -2,7 +2,6 @@ import datetime
 import os
 import csv
 
-
 class Transaction:
     """Class to represent transactions including interest payments"""
     def __init__(self, amount, transaction_type, recipient=None, note=""):
@@ -103,19 +102,20 @@ class User:
             'transaction_history': [t.to_dict() for t in self.transaction_history],
             'tier': self.tier,
             'last_interest_calculation': self.last_interest_calculation,
-            'APR': self.APR
+            'APR': self.APR,
+            'last_fee_date': getattr(self, 'last_fee_date', None)
         }
 
     @classmethod
     def from_dict(cls, data):
         """Create User from dictionary"""
-        # Lazy import to avoid circular dependency
-        from user_tier import BasicUser, SilverUser, GoldUser
+        from user_tier import BasicUser, SilverUser, GoldUser, MerchantUser
         
         user_class = {
             'Basic': BasicUser,
             'Silver': SilverUser,
-            'Gold': GoldUser
+            'Gold': GoldUser,
+            'Merchant': MerchantUser
         }.get(data['tier'], User)
         
         user = user_class(
@@ -126,4 +126,6 @@ class User:
         user.transaction_history = [Transaction.from_dict(t) for t in data['transaction_history']]
         user.last_interest_calculation = data['last_interest_calculation']
         user.APR = data.get('APR', 0.02)
+        if 'last_fee_date' in data and data['last_fee_date']:
+            user.last_fee_date = data['last_fee_date']
         return user

@@ -2,7 +2,6 @@ from getpass import getpass
 import time
 from digital_wallet import DigitalWallet, display_main_menu, user_session, display_tier_options
 
-
 def main():
     wallet = DigitalWallet()
     wallet.start_interest_service()
@@ -24,9 +23,8 @@ def main():
                 username = input("Choose a username: ")
                 password = getpass("Choose a password: ")
                 display_tier_options()
-                tier_choice = input("Select tier (1-3): ")
+                tier_choice = input("Select tier (1-4): ")
                 
-                # Collect KYC information
                 full_name = input("Full Name: ")
                 dob = input("Date of Birth (YYYY-MM-DD): ")
                 address = input("Address: ")
@@ -34,7 +32,7 @@ def main():
                 
                 try:
                     tier = int(tier_choice)
-                    if tier not in [1, 2, 3]:
+                    if tier not in [1, 2, 3, 4]:
                         raise ValueError
                     kyc_data = {
                         'full_name': full_name,
@@ -46,7 +44,7 @@ def main():
                         deposit_amount = float(input("Initial deposit amount: $"))
                         wallet.deposit(username, deposit_amount)
                 except ValueError:
-                    print("Invalid tier selection. Please enter 1, 2, or 3")
+                    print("Invalid tier selection. Please enter 1, 2, 3, or 4")
             
             elif choice == "3":
                 wallet.stop_interest_service()
