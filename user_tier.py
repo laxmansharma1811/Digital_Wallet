@@ -1,5 +1,5 @@
 from user import Transaction, User
-
+import datetime
 
 class BasicUser(User):
     """Basic user tier with limited features"""
@@ -135,7 +135,6 @@ class GoldUser(User):
             return False
         
         self.balance -= amount
-        # Simulate investment with 60% chance of 5% profit
         import random
         if random.random() < 0.6:
             return_amount = round(amount * 1.05, 2)
@@ -152,3 +151,80 @@ class GoldUser(User):
             self.save_transaction_to_csv(invest_transaction)
             print("Investment didn't yield returns this time")
         return True
+
+class MerchantUser(User):
+    """Merchant user tier for business accounts"""
+    MAX_TRANSACTION = 20000
+    TRANSACTION_FEE = 0
+    MONTHLY_FEE = 10
+    
+    def __init__(self, username, password, initial_balance=0):
+        super().__init__(username, password, initial_balance)
+        self.tier = "Merchant"
+        self.APR = 0.025  # 2.5% APR
+        self.last_fee_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    
+    def transfer(self, amount, recipient):
+        if amount > self.MAX_TRANSACTION:
+            print(f"Error: Merchant users can't transfer more than ${self.MAX_TRANSACTION}")
+            return False
+        if self.balance < amount:
+            print("Insufficient funds")
+            return False
+        
+        self.balance -= amount
+        recipient.balance += amount
+        
+        out_transaction = Transaction(amount, "transfer_out", recipient.username)
+        in_transaction = Transaction(amount, "transfer_in", self.username)
+        
+        self.transaction_history.append(out_transaction)
+        recipient.transaction_history.append(in_transaction)
+        
+        self.save_transaction_to_csv(out_transaction)
+        recipient.save_transaction_to_csv(in_transaction)
+        
+        return True
+    
+    def bulk_payment(self, amount, recipients):
+        total_amount = amount * len(recipients)
+        if total_amount > self.balance:
+            print("Insufficient funds for bulk payment")
+            return False
+        
+        self.balance -= total_amount
+        for recipient in recipients:
+            recipient.balance += amount
+            out_transaction = Transaction(amount, "bulk_payment_out", recipient.username)
+            in_transaction = Transaction(amount, "bulk_payment_in", self.username)
+            self.transaction_history.append(out_transaction)
+            recipient.transaction_history.append(in_transaction)
+            self.save_transaction_to_csv(out_transaction)
+            recipient.save_transaction_to_csv(in_transaction)
+        
+        return True
+    
+    def request_loan(self, amount):
+        if amount > 10000:
+            print("Loan request denied: Maximum loan is $10000 for Merchant users")
+            return False
+        
+        self.balance += amount
+        loan_transaction = Transaction(amount, "loan", note="Merchant tier loan")
+        self.transaction_history.append(loan_transaction)
+        self.save_transaction_to_csv(loan_transaction)
+        return True
+    
+    def calculate_daily_interest(self):
+        """Calculate daily interest and monthly maintenance fee"""
+        super().calculate_daily_interest()
+        
+        now = datetime.datetime.now()
+        last_fee = datetime.datetime.strptime(self.last_fee_date, "%YB-%Y-%m-%d")
+        if (now - last_fee).days >= 30:  # Check if a month has passed
+            if self.balance >= self.MONTHLY_FEE:
+                self.balance -= self.MONTHLY_FEE
+                fee_transaction = Transaction(self.MONTHLY_FEE, "maintenance_fee", note="Monthly Merchant account fee")
+                self.transaction_history.append(fee_transaction)
+                self.save_transaction_to_csv(fee_transaction)
+                self.last_fee_date = now.strftime("%Y-%m-%d")
